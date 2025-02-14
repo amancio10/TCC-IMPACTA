@@ -1,0 +1,10 @@
+{
+    "programName": "prjAPI.dproj",
+    "guid": "{E5CC00D7-916C-49CC-A3D9-97BC86C02CE9}",
+    "projects": [
+        {
+            "name": "projeto",
+            "projectGUID": "{816E5F50-0B53-479E-9E99-B52E6F97BA01}"
+        }
+    ]
+}
