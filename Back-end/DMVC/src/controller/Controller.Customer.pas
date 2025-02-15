@@ -6,7 +6,8 @@ uses
   MVCFramework,
   MVCFramework.Commons,
   MVCFramework.Serializer.Commons,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  Controller.VariaveisAmbiente;
 
 type
   [MVCNameCase(ncCamelCase)]
@@ -38,7 +39,9 @@ uses
   MVCFramework.Logger,
   System.StrUtils,
   JsonDataObjects,
-  System.JSON;
+  System.JSON,
+  Controller.DmConexao,
+  System.Classes;
 
 procedure TCustomer.OnAfterAction(Context: TWebContext; const AActionName: string);
 begin
@@ -52,15 +55,89 @@ end;
 
 procedure TCustomer.CreateAPIDados([MVCFromBody] APIDados: TAPIDados);
 var
-  Response: TJSONObject;
+  Response       : TJSONObject;
+  Retorno        : TJSONObject;
+  JSONBody       : TJSONObject;
+  Content        : TJSONObject;
+  ContentsArray  : TJSONArray;
+  PartsArray     : TJSONArray;
+  Parts          : TJSONArray;
+  Candidates     : TJSONArray;
+  Prompt         : TStringList;
+  Complemento    : TStringList;
+  URLBase, Key   : string;
+  Devolver       : string;
+  ExecutablePath : string;
+  SQL            : string;
 begin
   Response := TJSONObject.Create;
 
-  Response.AddPair('status', 'sucesso');
-  Response.AddPair('mensagem', 'Recebido com sucesso!');
-  Response.AddPair('pergunta', APIDados.Pergunta);
+ {$Region 'Chama o Gemini'}
 
-  Render(Response);
+  try
+    DMConexao := TDMConexao.Create(nil);
+    with DMConexao do
+    begin
+      TVariaveisAmbiente.LerVariaveisGemini(URLBase, Key, Devolver);
+      TVariaveisAmbiente.GetExecutablePath(ExecutablePath);
+
+      Prompt      := TStringList.Create;
+      Complemento := TStringList.Create;
+      JSONBody    := TJSONObject.Create;
+
+      RESTClient.BaseURL := URLBase + Key;
+      
+      {$Region 'Envio'}
+      try
+        Prompt.LoadFromFile(ExecutablePath + '\prompt.config');
+        Complemento.LoadFromFile(ExecutablePath + '\complemento.config');
+
+        Prompt.Add(complemento.Text);
+        Prompt.Add(APIDados.Pergunta);
+
+        ContentsArray := TJSONArray.Create;
+        PartsArray    := TJSONArray.Create;
+        PartsArray.AddElement(TJSONObject.Create.AddPair('text', Prompt.Text));
+        ContentsArray.AddElement(TJSONObject.Create.AddPair('parts', PartsArray));
+        JSONBody.AddPair('contents', ContentsArray);
+
+        RESTRequest.Params.ParameterByName('body4E6B89C7FD1E4198BD64C5BE65C5188E').Value := JSONBody.ToString;
+      finally
+        JSONBody.Free;
+        Prompt.Free;
+        Complemento.Free;
+      end;
+            
+      RESTRequest.Execute;
+      {$EndRegion}    
+      {$Region 'Retorno'}
+        Retorno := RESTRequest.Response.JSONValue as TJSONObject;
+
+        Candidates := Retorno.GetValue<TJSONArray>('candidates');
+        if Candidates.Count > 0 then
+        begin
+          Content := Candidates.Items[0].GetValue<TJSONObject>('content');
+          Parts := Content.GetValue<TJSONArray>('parts');
+          if Parts.Count > 0 then
+          begin
+            SQL := Parts.Items[0].GetValue<string>('text');
+            SQL := StringReplace(SQL, '```sql', '', [rfReplaceAll, rfIgnoreCase]);
+            SQL := StringReplace(SQL, '```'   , '', [rfReplaceAll, rfIgnoreCase]);
+          end;
+        end;
+       {$EndRegion 'Retorno'}
+
+      if Devolver = 'JSON' then
+       Render(ExecuteSQL(SQL))
+      else
+       Render(SQL);
+
+    end;
+  finally
+    FreeAndNil(DMConexao);
+  end;
+
+ {$EndRegion} 
 end;
 
 end.

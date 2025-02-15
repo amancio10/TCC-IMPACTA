@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
@@ -129,10 +129,11 @@
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
         <DCCReference Include="..\src\controller\Controller.DmConexao.pas">
-            <Form>DataModule1</Form>
+            <Form>DMConexao</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\src\controller\Controller.VariaveisAmbiente.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -8,17 +8,22 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.FB,
   FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, FireDAC.VCLUI.Wait;
+  FireDAC.Comp.Client, FireDAC.VCLUI.Wait, REST.Types, REST.Client,
+  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects;
 
 type
   TDMConexao = class(TDataModule)
     FDConnection: TFDConnection;
     Query: TFDQuery;
+    RESTRequest: TRESTRequest;
+    RESTClient: TRESTClient;
+    RESTResponse: TRESTResponse;
     procedure DataModuleCreate(Sender: TObject);
   private
     procedure Conexao();
     { Private declarations }
   public
+    function ExecuteSQL(aSQL: string): WideString;
     { Public declarations }
   end;
 
@@ -28,7 +33,8 @@ var
 implementation
 
 uses
-  Controller.VariaveisAmbiente;
+  Controller.VariaveisAmbiente,
+  System.JSON, DataSet.Serialize;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
@@ -39,6 +45,27 @@ uses
 procedure TDMConexao.DataModuleCreate(Sender: TObject);
 begin
   Conexao;
+end;
+
+function TDMConexao.ExecuteSQL(aSQL: string): WideString;
+var
+  JSONString: WideString;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+
+    try
+      Open;
+      JSONString := Query.ToJSONArray.ToString;
+    except
+      JSONString := '{"message": "Não encontramos dados para essa questão. Melhore sua pergunta e tente novamente"}';
+    end;
+
+  end;
+
+  Result := JSONString;
 end;
 
 procedure TDMConexao.Conexao;

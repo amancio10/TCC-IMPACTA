@@ -1,0 +1,67 @@
+unit Controller.DmConexao;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.FB,
+  FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
+  FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, FireDAC.VCLUI.Wait;
+
+type
+  TDMConexao = class(TDataModule)
+    FDConnection: TFDConnection;
+    Query: TFDQuery;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    procedure Conexao();
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DMConexao: TDMConexao;
+
+implementation
+
+uses
+  Controller.VariaveisAmbiente;
+
+{%CLASSGROUP 'System.Classes.TPersistent'}
+
+{$R *.dfm}
+
+{ TDataModule1 }
+
+procedure TDMConexao.DataModuleCreate(Sender: TObject);
+begin
+  Conexao;
+end;
+
+procedure TDMConexao.Conexao;
+var
+  Database, UserName, Password, DriverID: string;
+  ExecutablePath: string;
+begin
+  TVariaveisAmbiente.LerVariaveisDB(Database, UserName, Password, DriverID);
+
+  FDConnection.Params.Clear;
+  FDConnection.Params.Add('DriverID=' + DriverID);
+  FDConnection.Params.Add('Database=' + Database);
+  FDConnection.Params.Add('User_Name=' + UserName);
+  FDConnection.Params.Add('Password=' + Password);
+
+  try
+    FDConnection.Connected := True;
+    Writeln('Conexão com a base de dados bem-sucedida!');
+  except
+    on E: Exception do
+      Writeln('Erro ao conectar com a base de dados: ' + E.Message);
+  end;
+
+end;
+
+end.
