@@ -1,0 +1,35 @@
+unit Controller.VariaveisAmbiente;
+
+interface
+
+uses
+  System.SysUtils, System.IniFiles;
+
+type
+  TVariaveisAmbiente = class
+  Public
+    class procedure LerVariaveisfiguracoesDB(var Database, UserName, Password, DriverID: string);
+  end;
+
+implementation
+
+class procedure TVariaveisAmbiente.LerVariaveisfiguracoesDB(var Database, UserName, Password, DriverID: string);
+var
+  IniFile: TIniFile;
+  ExecutablePath: string;
+begin
+  ExecutablePath := ExtractFilePath(ParamStr(0));
+  IniFile := TIniFile.Create(ExecutablePath + 'Conexao.ini');
+
+  try
+    Database := IniFile.ReadString('Config', 'Database', '');
+    UserName := IniFile.ReadString('Config', 'User_Name', '');
+    Password := IniFile.ReadString('Config', 'Password', '');
+    DriverID := IniFile.ReadString('Config', 'DriverID', '');
+  finally
+    IniFile.Free;
+  end;
+
+end;
+
+end.

@@ -15,7 +15,8 @@ uses
   IdContext,
   IdHTTPWebBrokerBridge,
   Controller.Customer in '..\src\controller\Controller.Customer.pas',
-  WebModule.Main in '..\src\services\WebModule.Main.pas' {wmMain: TWebModule};
+  WebModule.Main in '..\src\services\WebModule.Main.pas' {wmMain: TWebModule},
+  Controller.DmConexao in '..\src\controller\Controller.DmConexao.pas' {DataModule1: TDataModule};
 
 {$R *.res}
 

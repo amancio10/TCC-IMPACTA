@@ -1,0 +1,73 @@
+unit Controller.DmConexao;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.FB,
+  FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
+  FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, FireDAC.VCLUI.Wait;
+
+type
+  TDataModule1 = class(TDataModule)
+    FDConnection: TFDConnection;
+    Query: TFDQuery;
+  private
+    procedure Conexao();
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DataModule1: TDataModule1;
+
+implementation
+
+uses
+  System.IniFiles;
+
+{%CLASSGROUP 'System.Classes.TPersistent'}
+
+{$R *.dfm}
+
+{ TDataModule1 }
+
+procedure TDataModule1.Conexao;
+var
+  IniFile: TIniFile;
+  Database, UserName, Password, DriverID: string;
+  FDConnection: TFDConnection;
+  ExecutablePath: string;
+begin
+  ExecutablePath := ExtractFilePath(ParamStr(0));
+  IniFile := TIniFile.Create(ExecutablePath + 'Conexao.ini');
+
+    try
+      Database := IniFile.ReadString('Config', 'Database', '');
+      UserName := IniFile.ReadString('Config', 'User_Name', '');
+      Password := IniFile.ReadString('Config', 'Password', '');
+      DriverID := IniFile.ReadString('Config', 'DriverID', '');
+    finally
+      IniFile.Free;
+    end;
+
+    FDConnection.Params.Clear;
+    FDConnection.Params.Add('DriverID=' + DriverID);
+    FDConnection.Params.Add('Database=' + Database);
+    FDConnection.Params.Add('User_Name=' + UserName);
+    FDConnection.Params.Add('Password=' + Password);
+
+    try
+      FDConnection.Connected := True;
+      Writeln('Conexão bem-sucedida!');
+    except
+      on E: Exception do
+        Writeln('Erro ao conectar: ' + E.Message);
+    end;
+
+end;
+
+end.

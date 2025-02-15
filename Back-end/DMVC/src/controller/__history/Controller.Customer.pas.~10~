@@ -1,0 +1,63 @@
+unit Controller.Customer;
+
+interface
+
+uses
+  MVCFramework,
+  MVCFramework.Commons,
+  MVCFramework.Serializer.Commons,
+  System.Generics.Collections;
+
+type
+  [MVCNameCase(ncCamelCase)]
+  TApiTcc = class
+  end;
+
+  [MVCPath('/api')]
+  TCustomer = class(TMVCController)
+  public
+    //
+  protected
+    procedure OnBeforeAction(Context: TWebContext; const AActionName: string; var Handled: Boolean); override;
+    procedure OnAfterAction(Context: TWebContext; const AActionName: string); override;
+
+  public
+    [MVCPath('/perguntar')]
+    [MVCHTTPMethod([httpPOST])]
+    procedure CreateApiTcc([MVCFromBody] ApiTcc: TApiTcc);
+  end;
+
+implementation
+
+uses
+  System.SysUtils,
+  MVCFramework.Logger,
+  System.StrUtils,
+  JsonDataObjects,
+  System.JSON;
+
+procedure TCustomer.OnAfterAction(Context: TWebContext; const AActionName: string);
+begin
+  inherited;
+end;
+
+procedure TCustomer.OnBeforeAction(Context: TWebContext; const AActionName: string; var Handled: Boolean);
+begin
+  inherited;
+end;
+
+procedure TCustomer.CreateApiTcc([MVCFromBody] ApiTcc: TApiTcc);
+var
+  Response: TJSONObject;
+begin
+  Response := TJSONObject.Create;
+
+  Response.AddPair('message', 'Person created successfully');
+  Response.AddPair('firstName', 'AMANCIO');
+  Response.AddPair('lastName', 'AQUINO');
+  Response.AddPair('dob', '2025-02-02'); // Converte para string ISO
+
+  Render(Response);
+end;
+
+end.
