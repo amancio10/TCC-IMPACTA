@@ -9,7 +9,9 @@ uses
   FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, FireDAC.VCLUI.Wait, REST.Types, REST.Client,
-  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects;
+  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects,
+  FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TDMConexao = class(TDataModule)

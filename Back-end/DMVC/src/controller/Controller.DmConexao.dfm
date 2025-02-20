@@ -5,12 +5,9 @@ object DMConexao: TDMConexao
   object FDConnection: TFDConnection
     Params.Strings = (
       
-        'Database=C:\Users\amanc\OneDrive\Documentos\TRS\IA\Win32\Debug\J' +
-        'CF.FDB'
-      'User_Name=SYSDBA'
-      'Password=masterkey'
-      'DriverID=FB')
-    Connected = True
+        'Database=C:\Users\amanc\OneDrive\Documentos\GitHub\TCC-IMPACTA\B' +
+        'ack-end\DataBase\BDSqlite.db'
+      'DriverID=SQLite')
     LoginPrompt = False
     Left = 53
     Top = 32
