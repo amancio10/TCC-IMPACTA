@@ -1,0 +1,22 @@
+object DataModule1: TDataModule1
+  Height = 186
+  Width = 318
+  object FDConnection: TFDConnection
+    Params.Strings = (
+      
+        'Database=C:\Users\amanc\OneDrive\Documentos\TRS\IA\Win32\Debug\J' +
+        'CF.FDB'
+      'User_Name=SYSDBA'
+      'Password=masterkey'
+      'DriverID=FB')
+    Connected = True
+    LoginPrompt = False
+    Left = 53
+    Top = 32
+  end
+  object Query: TFDQuery
+    Connection = FDConnection
+    Left = 45
+    Top = 96
+  end
+end
