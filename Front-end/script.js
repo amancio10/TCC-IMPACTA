@@ -1,7 +1,7 @@
 // script.js
 
 // URL da API (atualize conforme o ngrok muda)
-const API_URL = 'https://cors-anywhere.herokuapp.com/https://fbfb-152-249-74-16.ngrok-free.app/api/perguntar';
+const API_URL = 'https://cors-anywhere.herokuapp.com/https://218c-152-249-74-16.ngrok-free.app/api/perguntar';
 
 // Referências aos elementos do DOM
 const chatForm = document.getElementById('chatForm');

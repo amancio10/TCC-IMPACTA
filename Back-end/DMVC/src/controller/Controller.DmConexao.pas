@@ -26,6 +26,9 @@ type
     { Private declarations }
   public
     function ExecuteSQL(aSQL: string): WideString;
+    function FindLogin(aSQL: string): Boolean;
+    function CreateRegister(aSQL: string): WideString;
+    function QueryBuilder(Email, Senha: string): WideString;
     { Public declarations }
   end;
 
@@ -43,6 +46,21 @@ uses
 {$R *.dfm}
 
 { TDataModule1 }
+
+function TDMConexao.CreateRegister(aSQL: string): WideString;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+    try
+      ExecSQL;
+      Result := '{"message":"Registro criado com sucesso"}';
+    except
+      Result := '{"message":"Erro ao criar o registro"}';
+    end;
+  end;
+end;
 
 procedure TDMConexao.DataModuleCreate(Sender: TObject);
 begin
@@ -68,6 +86,48 @@ begin
   end;
 
   Result := JSONString;
+end;
+
+function TDMConexao.FindLogin(aSQL: string): Boolean;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+    try
+      Open;
+      if Query.RecordCount > 0 then
+        Result := True
+      else
+        Result := False;
+    except
+      on E: Exception do
+      Writeln('Erro ao conectar com a base de dados: ' + E.Message);
+    end;
+  end;
+end;
+
+function TDMConexao.QueryBuilder(Email, Senha: string): WideString;
+var
+  SQL           : TStringList;
+  sSQL          : String;
+begin
+  try
+    SQL := TStringList.Create();
+    SQL.Add('SELECT');
+    SQL.Add('EMAIL,');
+    SQL.Add('SENHA');
+    SQL.Add('FROM');
+    SQL.Add('USUARIOS');
+    SQL.Add('WHERE');
+    SQL.Add('EMAIL=''%S''');
+    SQL.Add('AND SENHA=''%S''');
+
+    sSQL := Format(SQL.Text, [Email, Senha]);
+  finally
+    FreeAndNil(SQL);
+  end;
+    Result := sSQL;
 end;
 
 procedure TDMConexao.Conexao;

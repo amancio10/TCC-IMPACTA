@@ -1,4 +1,4 @@
-unit Controller.DmConexa;
+unit Controller.DmConexao;
 
 interface
 
@@ -9,7 +9,9 @@ uses
   FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, FireDAC.VCLUI.Wait, REST.Types, REST.Client,
-  Data.Bind.Components, Data.Bind.ObjectScope;
+  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects,
+  FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TDMConexao = class(TDataModule)
@@ -23,6 +25,9 @@ type
     procedure Conexao();
     { Private declarations }
   public
+    function ExecuteSQL(aSQL: string): WideString;
+    function FindLogin(aSQL: string): Boolean;
+    function CreateRegister(aSQL: string): WideString;
     { Public declarations }
   end;
 
@@ -32,7 +37,8 @@ var
 implementation
 
 uses
-  Controller.VariaveisAmbiente;
+  Controller.VariaveisAmbiente,
+  System.JSON, DataSet.Serialize;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
@@ -40,9 +46,57 @@ uses
 
 { TDataModule1 }
 
+function TDMConexao.CreateRegister(aSQL: string): WideString;
+begin
+  with Query do
+  begin
+    Close;
+  end;
+end;
+
 procedure TDMConexao.DataModuleCreate(Sender: TObject);
 begin
   Conexao;
+end;
+
+function TDMConexao.ExecuteSQL(aSQL: string): WideString;
+var
+  JSONString: WideString;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+
+    try
+      Open;
+      JSONString := Query.ToJSONArray.ToString;
+    except
+      JSONString := '{"message": "Não encontramos dados para essa questão. Melhore sua pergunta e tente novamente"}';
+    end;
+
+  end;
+
+  Result := JSONString;
+end;
+
+function TDMConexao.FindLogin(aSQL: string): Boolean;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+    try
+      Open;
+      if Query.RecordCount > 0 then
+        Result := True
+      else
+        Result := False;
+    except
+      on E: Exception do
+      Writeln('Erro ao conectar com a base de dados: ' + E.Message);
+    end;
+  end;
 end;
 
 procedure TDMConexao.Conexao;

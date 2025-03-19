@@ -9,7 +9,9 @@ uses
   FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, FireDAC.VCLUI.Wait, REST.Types, REST.Client,
-  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects;
+  Data.Bind.Components, Data.Bind.ObjectScope, JsonDataObjects,
+  FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TDMConexao = class(TDataModule)
@@ -24,6 +26,9 @@ type
     { Private declarations }
   public
     function ExecuteSQL(aSQL: string): WideString;
+    function FindLogin(aSQL: string): Boolean;
+    function CreateRegister(aSQL: string): WideString;
+    function QueryBuilder(Email, Senha: string);
     { Public declarations }
   end;
 
@@ -42,6 +47,21 @@ uses
 
 { TDataModule1 }
 
+function TDMConexao.CreateRegister(aSQL: string): WideString;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+    try
+      ExecSQL;
+
+    except
+
+    end;
+  end;
+end;
+
 procedure TDMConexao.DataModuleCreate(Sender: TObject);
 begin
   Conexao;
@@ -53,19 +73,38 @@ var
 begin
   with Query do
   begin
-//    if SQL.Text.ToLower.Contains('SELECT') then
-//    begin
-      Close;
-      SQL.Text := aSQL;
-      Open;
+    Close;
+    SQL.Text := aSQL;
 
+    try
+      Open;
       JSONString := Query.ToJSONArray.ToString;
-//    end
-//    else
-//     JSONString := '{"message": "No data returned"}';
+    except
+      JSONString := '{"message": "Não encontramos dados para essa questão. Melhore sua pergunta e tente novamente"}';
+    end;
+
   end;
 
   Result := JSONString;
+end;
+
+function TDMConexao.FindLogin(aSQL: string): Boolean;
+begin
+  with Query do
+  begin
+    Close;
+    SQL.Text := aSQL;
+    try
+      Open;
+      if Query.RecordCount > 0 then
+        Result := True
+      else
+        Result := False;
+    except
+      on E: Exception do
+      Writeln('Erro ao conectar com a base de dados: ' + E.Message);
+    end;
+  end;
 end;
 
 procedure TDMConexao.Conexao;

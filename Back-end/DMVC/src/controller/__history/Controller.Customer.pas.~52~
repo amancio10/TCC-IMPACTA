@@ -9,13 +9,22 @@ uses
   System.Generics.Collections,
   Controller.VariaveisAmbiente;
 
+
 type
   [MVCNameCase(ncCamelCase)]
   TAPIDados = class
   Private
     FPergunta: string;
+    FEmail: string;
+    FSenha: string;
+    FNome: string;
+    FId: integer;
   Public
     property Pergunta: string read FPergunta write FPergunta;
+    property Email: string read FEmail write FEmail;
+    property Senha: string read FSenha write FSenha;
+    property Nome: string read FNome write FNome;
+    property Id: integer read FId write FId;
   end;
 
   [MVCPath('/api')]
@@ -30,6 +39,14 @@ type
     [MVCPath('/perguntar')]
     [MVCHTTPMethod([httpPOST])]
     procedure CreateAPIDados([MVCFromBody] APIDados: TAPIDados);
+
+    [MVCPath('/login')]
+    [MVCHTTPMethod([httpPOST])]
+    procedure ValidateLogin([MVCFromBody] APIDados: TAPIDados);
+
+    [MVCPath('/register')]
+    [MVCHTTPMethod([httpPOST])]
+    procedure CreateRegister([MVCFromBody] APIDados: TAPIDados);
   end;
 
 implementation
@@ -43,6 +60,37 @@ uses
   Controller.DmConexao,
   System.Classes;
 
+procedure TCustomer.CreateRegister(APIDados: TAPIDados);
+var
+  SQL           : TStringList;
+begin
+  {$REGION 'SQL'}
+  try
+    SQL := TStringList.Create();
+    SQL.Add('INSERT');
+    SQL.Add('INTO USUARIOS(');
+    SQL.Add('ID,');
+    SQL.Add('NOME,');
+    SQL.Add('EMAIL,');
+    SQL.Add('SENHA)');
+    SQL.Add('VALUES(');
+    SQL.Add(Format('%D', [APIDados.Id]));
+    SQL.Add(Format('''%S''', [APIDados.Nome]));
+    SQL.Add(Format('''%S''', [APIDados.Email]));
+    SQL.Add(Format('''%S''', [APIDados.Senha]));
+
+    DMConexao := TDMConexao.Create(nil);
+    with DMConexao do
+    begin
+       Render(CreateRegister(SQL.Text)); 
+    end;
+  finally
+    FreeAndNil(SQL);
+    FreeAndNil(DMConexao);
+  end;
+  {$ENDREGION}
+end;
+
 procedure TCustomer.OnAfterAction(Context: TWebContext; const AActionName: string);
 begin
   inherited;
@@ -51,6 +99,45 @@ end;
 procedure TCustomer.OnBeforeAction(Context: TWebContext; const AActionName: string; var Handled: Boolean);
 begin
   inherited;
+end;
+
+procedure TCustomer.ValidateLogin(APIDados: TAPIDados);
+var
+  SQL           : TStringList;
+  sSQL          : String;
+begin
+  {$REGION 'SQL'}
+  try
+    SQL := TStringList.Create();
+    SQL.Add('SELECT');
+    SQL.Add('EMAIL,');
+    SQL.Add('SENHA');
+    SQL.Add('FROM');
+    SQL.Add('USUARIOS');
+    SQL.Add('WHERE');
+    SQL.Add('EMAIL=''%S''');
+    SQL.Add('AND SENHA=''%S''');
+
+    sSQL := Format(SQL.Text, [APIDados.Email, APIDados.Senha]);
+  finally
+    FreeAndNil(SQL);
+  end;
+  {$ENDREGION}
+  {$REGION 'Faz Login'}
+  try
+    DMConexao := TDMConexao.Create(nil);
+    with DMConexao do
+    begin
+      if FindLogin(sSQL) then
+        Render('{"return": True}')
+      else
+        Render('{"return": False}')
+    end;
+  finally
+    FreeAndNil(DMConexao);
+  end;
+
+  {$ENDREGION}
 end;
 
 procedure TCustomer.CreateAPIDados([MVCFromBody] APIDados: TAPIDados);
@@ -66,15 +153,11 @@ var
   Prompt         : TStringList;
   Complemento    : TStringList;
   URLBase, Key   : string;
+  Devolver       : string;
   ExecutablePath : string;
   SQL            : string;
 begin
   Response := TJSONObject.Create;
-
-  Response.AddPair('status', 'sucesso');
-  Response.AddPair('mensagem', 'Recebido com sucesso!');
-  Response.AddPair('pergunta', APIDados.Pergunta);
-
 
  {$Region 'Chama o Gemini'}
 
@@ -82,7 +165,7 @@ begin
     DMConexao := TDMConexao.Create(nil);
     with DMConexao do
     begin
-      TVariaveisAmbiente.LerVariaveisGemini(URLBase, Key);
+      TVariaveisAmbiente.LerVariaveisGemini(URLBase, Key, Devolver);
       TVariaveisAmbiente.GetExecutablePath(ExecutablePath);
 
       Prompt      := TStringList.Create;
@@ -131,14 +214,17 @@ begin
         end;
        {$EndRegion 'Retorno'}
 
-    end;     
+      if Devolver = 'JSON' then
+       Render(ExecuteSQL(SQL))
+      else
+       Render(SQL);
+
+    end;
   finally
     FreeAndNil(DMConexao);
   end;
 
- {$EndRegion}
-
-  Render(Response);
+ {$EndRegion} 
 end;
 
 end.
