@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE-edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tela de Login</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Trirong">
+    <script src="./scripts.js" async="async"></script>
+    <style>
+        body {
+            font-family: "Trirong", sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-img {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('./assets/universe.jpg') no-repeat center;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            width: 320px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .container h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .container input {
+            width: 92%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+
+        .container input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .container button {
+            width: 100%;
+            padding: 12px;
+            background-color: purple;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .container button:hover {
+            background-color: rgb(120, 0, 120);
+        }
+
+        .container p {
+            color: white;
+            margin-top: 15px;
+        }
+
+        a {
+            color: #ff29e6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: rgb(255, 200, 255);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-img"></div> <!-- Fundo interativo -->
+
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuário" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <p>Não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+    </div>
+
+    <script src="scripts.js"></script> <!-- Importa o script externo -->
+</body>
+</html>
