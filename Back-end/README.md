@@ -7,7 +7,7 @@ O arquivo cGemini.ini contem:
 ```.ini
 [Config]
 URLBase=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=
-Key=AIzaSyBTB62ox4J_wSkLS6_68q6OMiRZGYyg0mQ
+Key=AIzaSyB2Uxz_HarZklcgU9JkxtfDu0GxUReUaF8
 Devolver=JSON
 ```
 __URLBase__ = URL de acesso a API do Gemini. <br>
