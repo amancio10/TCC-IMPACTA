@@ -1,7 +1,7 @@
 // script.js
 
 // URL da API (atualize conforme o ngrok muda)
-const API_URL = 'https://cors-anywhere.herokuapp.com/https://218c-152-249-74-16.ngrok-free.app/api/perguntar';
+const API_URL = 'http://127.0.0.1:8080/api/perguntar';
 
 // Referências aos elementos do DOM
 const chatForm = document.getElementById('chatForm');
@@ -42,7 +42,7 @@ chatForm.addEventListener('submit', function (event) {
   fetch(API_URL, {
     method: 'POST',
     headers: {
-      'Origin': 'http://127.0.0.1:4040',
+      'Origin': 'http://127.0.0.1:8080',
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
     },

@@ -70,7 +70,63 @@ begin
     end);
   FMVC.AddController(TCustomer);
 
-  
+// CORS middleware handles... well, CORS
+//  FMVC.AddMiddleware(TMVCCORSMiddleware.Create('*'));
+
+  FMVC.AddMiddleware(
+    TMVCCORSMiddleware.Create(
+         '*', { ****** AAllowedOriginURLs *******}
+              (********************
+              * Define quais origens (domínios) podem acessar sua API.  *
+              * '*': permite qualquer origem (aberto total).            *
+              * 'http://localhost:8080': permite apenas essa origem.    *
+              *  'https://meusite.com': permite apenas esse domínio.    *
+              *  Atenção: Se você usar ' * ' aqui, você não pode ativar *
+              * AllowCredentials = True (o navegador vai bloquear).     *
+              *********************)
+      False, { AAllowsCredentials }
+             (************************
+             * Indica se a API aceita credenciais nas requisições cross-origin:  *
+             * Cookies                                                           *
+             * Headers de Autenticação (Authorization)                           *
+             * Certificados de cliente                                           *
+             * Importante: Só pode ser True se AAllowedOriginURLs for um domínio *
+             * específico (não pode ser '*').                                    *
+             ***********************)
+      '',    { AExposeHeaders (deixa vazio se não precisa expor headers específicos) }
+             (***************************
+             * Define quais headers customizados o navegador pode enxergar na resposta.   *
+             * Se sua API retorna um header como X-Custom-Token, você deve listá-lo aqui. *
+             * Exemplo: 'X-Custom-Token, X-RateLimit'                                     *
+             * Se for vazio (''), o navegador só vai conseguir ver os headers "padrão",   *
+             * como Content-Type, Date, etc.                                              *
+             **************************)
+      'content-type,authorization,x-requested-with',
+             { *********** AAllowsHeaders ************ }
+             (****************************
+             *  Define quais headers o cliente pode enviar numa requisição.                      *
+             * 'content-type': necessário se você envia JSON (application/json).                 *
+             * 'authorization': necessário se você envia token de autenticação.                  *
+             * 'x-requested-with': header comum em requisições AJAX (como fetch, axios, jQuery). *
+             * Se algum header não estiver aqui, o navegador bloqueia a requisição CORS antes    *
+             * mesmo de enviá-la para a API.                                                     *
+             *****************************)
+      'GET,POST,PUT,DELETE,OPTIONS',
+             { ******** AAllowsMethods ********* }
+             (************************
+             * Define quais métodos HTTP sua API permite em chamadas CORS.         *
+             * OPTIONS: usado automaticamente pelo navegador em preflight requests *
+             * GET, POST, PUT, DELETE: os métodos REST clássicos                   *
+             *************************)
+      3600   { ****AAccessControlMaxAge em segundos (ex: 1h = 3600s) **** }
+             (**************************
+             * Define por quanto tempo (em segundos) o navegador pode cachear a resposta *
+             * da requisição OPTIONS (preflight).                                        *
+             * 3600 = 1 hora                                                             *
+             * Ajuda a evitar múltiplas requisições OPTIONS, melhorando performance      *
+             ***************************)
+    )
+  );
   
   // Analytics middleware generates a csv log, useful to do traffic analysis
   //FMVC.AddMiddleware(TMVCAnalyticsMiddleware.Create(GetAnalyticsDefaultLogger));
@@ -105,7 +161,7 @@ begin
   FMVC.OnWebContextCreate( 
     procedure(const Context: TWebContext) 
     begin 
-      // Initialize services to make them accessibile from Context 
+      // Initialize services to make them accessibile from Context
       // Context.CustomIntfObject := TMyService.Create; 
     end); 
   
