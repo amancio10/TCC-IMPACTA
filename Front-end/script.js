@@ -1,5 +1,19 @@
 // script.js
+const bg = document.querySelector(".bg-img");
 
+window.addEventListener("mousemove", (e) => {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    const decX = mouseX / window.innerWidth;
+    const decY = mouseY / window.innerHeight;
+    const maxX = bg.offsetWidth - window.innerWidth;
+    const maxY = bg.offsetHeight - window.innerHeight;
+
+    const panX = decX * maxX;
+    const panY = decY * maxY;
+
+    bg.style.transform = `translate(${-panX}px, ${-panY}px)`;
+});
 // URL da API (atualize conforme o ngrok muda)
 const API_URL = 'http://127.0.0.1:8080/api/perguntar';
 
